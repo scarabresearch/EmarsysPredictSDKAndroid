@@ -16,9 +16,14 @@
 
 package com.emarsys.predict;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
 import java.net.MalformedURLException;
@@ -28,19 +33,27 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class FunctionalTests extends AndroidTestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+@RunWith(AndroidJUnit4.class)
+public class FunctionalTests {
 
     private static final String TAG = FunctionalTests.class.getSimpleName();
 
     static final long TIMEOUT_SMALL = 2;
     static final long TIMEOUT_LARGE = 8;
 
-    public void setUp() throws Exception {
-        super.setUp();
-
+    @BeforeClass
+    public static void setUp() {
         // Init the Session
         SessionHelper.reset();
+    }
 
+    @Before
+    public void setMerchantId() {
         // These parts of our API should be implemented on ALL website pages
         Session session = Session.getInstance();
         // Identifies the merchant account (here the emarsys demo merchant 1A65B5CB868AFF1E).
@@ -53,6 +66,7 @@ public class FunctionalTests extends AndroidTestCase {
         Exception error;
     }
 
+    @Test
     public void testERROR_MULTIPLE_CALL() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
         final ErrorHolder e = new ErrorHolder();
@@ -87,6 +101,7 @@ public class FunctionalTests extends AndroidTestCase {
         assertNull(e.error);
     }
 
+    @Test
     public void testERROR_MULTIPLE_CALL_separated() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
 
@@ -143,6 +158,7 @@ public class FunctionalTests extends AndroidTestCase {
         assertEquals(1, signal.getCount());
     }
 
+    @Test
     public void testInvalidMerchantId() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
         Exception e = null;
@@ -189,6 +205,7 @@ public class FunctionalTests extends AndroidTestCase {
         assertNotNull(e);
     }
 
+    @Test
     public void testNonUniqueLogic() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
         Exception e = null;
@@ -220,6 +237,7 @@ public class FunctionalTests extends AndroidTestCase {
         assertNotNull(e);
     }
 
+    @Test
     public void testTRACKING() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
         final ErrorHolder e = new ErrorHolder();
@@ -283,6 +301,7 @@ public class FunctionalTests extends AndroidTestCase {
         assertNull(e.error);
     }
 
+    @Test
     public void testCATEGORY() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
         final ErrorHolder e = new ErrorHolder();
@@ -313,6 +332,7 @@ public class FunctionalTests extends AndroidTestCase {
         assertNull(e.error);
     }
 
+    @Test
     public void testAdvertisingIdentifier() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
         final List<String> tmp = new ArrayList<String>();
@@ -345,6 +365,7 @@ public class FunctionalTests extends AndroidTestCase {
         assertEquals(tmp.get(0), tmp.get(1));
     }
 
+    @Test
     public void testEmailHash() throws MalformedURLException {
         Session.getInstance().setCustomerEmail("john@doe.com");
         String url = Session.getInstance().generateGET(new Transaction());

@@ -206,6 +206,16 @@ public class Transaction {
      * See usage examples and the list of available recommendation strategies.
      *
      * @param request           recommendation request instance.
+     */
+    public void recommend(@NonNull RecommendationRequest request) {
+        recommend(request, null);
+    }
+
+    /**
+     * Request recommendations.
+     * See usage examples and the list of available recommendation strategies.
+     *
+     * @param request           recommendation request instance.
      * @param completionHandler completion handler
      */
     public void recommend(@NonNull RecommendationRequest request,

@@ -16,125 +16,94 @@
 
 package com.emarsys.predict;
 
-import android.test.AndroidTestCase;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class NullabilityTests extends AndroidTestCase {
+import android.support.test.runner.AndroidJUnit4;
 
-    private static final String TAG = NullabilityTests.class.getSimpleName();
+import java.util.ArrayList;
 
-    public void setUp() throws Exception {
-        super.setUp();
+import static org.junit.Assert.assertEquals;
 
+@RunWith(AndroidJUnit4.class)
+public class NullabilityTests {
+
+    @BeforeClass
+    public static void setUp() {
         // Init the Session
         SessionHelper.reset();
+        // These parts of our API should be implemented on ALL website pages
+        Session session = Session.getInstance();
+        // Identifies the merchant account (here the emarsys demo merchant 1A65B5CB868AFF1E).
+        // Replace it with your own Merchant Id before run.
+        session.setMerchantId("1A74F439823D2CB4");
+        assertEquals(session.getMerchantId(), "1A74F439823D2CB4");
     }
 
+    @Test(expected = NullPointerException.class)
     public void testCartItem() {
-        try {
-            new CartItem(null, 80f, 2);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        new CartItem(null, 80f, 2);
     }
 
+    @Test(expected = NullPointerException.class)
     public void testRecommendationRequest() {
-        try {
-            new RecommendationRequest(null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        new RecommendationRequest(null);
     }
 
+    @Test(expected = NullPointerException.class)
     public void testSendTransaction() {
-        try {
-            Session.getInstance().sendTransaction(null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        Session.getInstance().sendTransaction(null);
     }
 
+    @Test(expected = NullPointerException.class)
     public void testMerchantId() {
-        try {
-            Session.getInstance().setMerchantId(null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        Session.getInstance().setMerchantId(null);
     }
 
+    @Test(expected = NullPointerException.class)
     public void testAvailabilityZone() {
-        try {
-            new Transaction().availabilityZone(null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        new Transaction().availabilityZone(null);
     }
 
+    @Test(expected = NullPointerException.class)
     public void testCategory() {
-        try {
-            new Transaction().category(null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        new Transaction().category(null);
     }
 
+    @Test(expected = NullPointerException.class)
     public void testKeyword() {
-        try {
-            new Transaction().keyword(null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        new Transaction().keyword(null);
     }
 
-    public void testPurchase() {
-        try {
-            new Transaction().purchase(null, null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+    @Test(expected = NullPointerException.class)
+    public void testPurchaseOrderId() {
+        new Transaction().purchase(null, new ArrayList<CartItem>());
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testPurchaseItems() {
+        new Transaction().purchase("1", null);
+    }
+
+    @Test(expected = NullPointerException.class)
     public void testRecommend() {
-        try {
-            new Transaction().recommend(null, null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        new Transaction().recommend(null, null);
     }
 
+    @Test(expected = NullPointerException.class)
     public void testSearchTerm() {
-        try {
-            new Transaction().searchTerm(null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        new Transaction().searchTerm(null);
     }
 
+    @Test(expected = NullPointerException.class)
     public void testTransaction() {
-        try {
-            new Transaction(null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        new Transaction(null);
     }
 
+    @Test(expected = NullPointerException.class)
     public void testView() {
-        try {
-            new Transaction().view(null);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
+        new Transaction().view(null);
     }
 
 }

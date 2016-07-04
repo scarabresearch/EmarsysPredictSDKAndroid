@@ -23,7 +23,8 @@ android {
         minSdkVersion 16
         targetSdkVersion 16
         versionCode 1
-        versionName "1.0-SNAPSHOT"
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -39,5 +40,6 @@ dependencies {
     compile 'commons-codec:commons-codec:1.5'
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.squareup.okhttp:okhttp:2.7.5'
-    compile 'junit:junit:4.12'
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support.test:runner:0.3'
 }
