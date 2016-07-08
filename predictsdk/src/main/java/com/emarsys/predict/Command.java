@@ -247,6 +247,26 @@ class KeywordCommand extends StringCommand {
 }
 
 /**
+ * Wraps the tag command.
+ */
+class TagCommand extends StringCommand {
+
+    TagCommand(String value) {
+        super(value);
+    }
+
+    @Override
+    List<ErrorParameter> validate() {
+        List<ErrorParameter> ret = new ArrayList<ErrorParameter>();
+        if (value.isEmpty()) {
+            ret.add(createEmptyStringErrorParameter("tag", "tag"));
+        }
+        return ret;
+    }
+
+}
+
+/**
  * Wraps the purchase command.
  */
 class PurchaseCommand extends CartCommand {

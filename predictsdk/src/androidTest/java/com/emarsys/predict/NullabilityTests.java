@@ -39,6 +39,7 @@ public class NullabilityTests {
         // Replace it with your own Merchant Id before run.
         session.setMerchantId("1A74F439823D2CB4");
         assertEquals(session.getMerchantId(), "1A74F439823D2CB4");
+        Session.getInstance().setSecure(true);
     }
 
     @Test(expected = NullPointerException.class)
@@ -74,6 +75,11 @@ public class NullabilityTests {
     @Test(expected = NullPointerException.class)
     public void testKeyword() {
         new Transaction().keyword(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testTag() {
+        new Transaction().tag(null);
     }
 
     @Test(expected = NullPointerException.class)

@@ -24,6 +24,7 @@ import com.squareup.okhttp.Response;
 
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -163,6 +164,8 @@ public class Session {
                     client.setCookieHandler(cookieManager);
                     Request request = new Request.Builder()
                             .url(url)
+                            .header("User-Agent", "EmarsysPredictSDK|osversion:"
+                                    + Build.VERSION.RELEASE + "|platform:android")
                             .build();
                     response = client.newCall(request).execute();
                     int statusCode = response.code();
@@ -321,7 +324,26 @@ public class Session {
         throw new Error("Missing 'cdv' cookie", Error.ERROR_MISSING_CDV_COOKIE, null);
     }
 
-    static final String SERVER = "http://recommender.scarabresearch.com";
+    static boolean secure = true;
+    static final String SERVER = "recommender.scarabresearch.com";
+
+    /**
+     * Set protocol to https if secure otherwise set to http.
+     *
+     * @param secure <tt>true</tt> if the protocol is https
+     */
+    public void setSecure(boolean secure) {
+        this.secure = secure;
+    }
+
+    /**
+     * Returns true if the communication is secured.
+     *
+     * @return true if the protocol is https or false if http
+     */
+    public boolean isSecure() {
+        return secure;
+    }
 
     String generateGET(Transaction transaction) {
         // Validate merchantId
@@ -332,7 +354,9 @@ public class Session {
         // Serialize query
         String query = transaction.serialize();
         Log.d(TAG, query);
-        return SERVER + "/merchants/" + merchantId + "?" + Uri.encode(query, "@#&=*+-_.,:!?()/~'%");
+        return (secure ? "https" : "http") + "://" + SERVER + "/merchants/" + merchantId + "?" +
+                Uri.encode(query,
+                "@#&=*+-_.,:!?()/~'%");
     }
 
 }

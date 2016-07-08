@@ -61,6 +61,7 @@ public class Transaction {
     private final List<PurchaseCommand> purchases;
     private final List<RecommendCommand> recommends;
     private final List<SearchTermCommand> searchTerms;
+    private final List<TagCommand> tags;
     private final List<ViewCommand> views;
 
     private final List<ErrorParameter> errors;
@@ -77,6 +78,7 @@ public class Transaction {
         recommends = new ArrayList<RecommendCommand>();
         purchases = new ArrayList<PurchaseCommand>();
         searchTerms = new ArrayList<SearchTermCommand>();
+        tags = new ArrayList<TagCommand>();
         views = new ArrayList<ViewCommand>();
         errors = new ArrayList<ErrorParameter>();
         handlers = new HashMap<String, CompletionHandler>();
@@ -202,6 +204,20 @@ public class Transaction {
     }
 
     /**
+     * Add an arbitrary tag to the current event. The tag is collected and can be accessed later
+     * from other Emarsys products.
+     *
+     * @param tag tag selected by user.
+     */
+    public void tag(@NonNull String tag) {
+        if (tag == null) {
+            throw new NullPointerException("The tag cannot be null");
+        }
+        TagCommand cmd = new TagCommand(tag);
+        tags.add(cmd);
+    }
+
+    /**
      * Request recommendations.
      * See usage examples and the list of available recommendation strategies.
      *
@@ -259,7 +275,7 @@ public class Transaction {
                 Log.d(TAG, e.toString());
                 errors.add(e);
             }
-            String sha1 = StringUtil.sha1(customerEmail.trim());
+            String sha1 = StringUtil.sha1(customerEmail.trim().toLowerCase());
             params.put("eh", sha1.toLowerCase().substring(0, 16) + "1");
         }
 
@@ -267,6 +283,12 @@ public class Transaction {
         if (!keywords.isEmpty()) {
             KeywordCommand cmd = keywords.get(keywords.size() - 1);
             params.put("k", cmd.toString());
+        }
+
+        // Handle tags
+        if (!tags.isEmpty()) {
+            TagCommand cmd = tags.get(tags.size() - 1);
+            params.put("t", cmd.toString());
         }
 
         // Handle availabilityZones
@@ -370,6 +392,7 @@ public class Transaction {
         validateCommandArray(categories, "category");
         validateCommandArray(purchases, "purchase");
         validateCommandArray(searchTerms, "searchTerm");
+        validateCommandArray(tags, "tag");
         validateCommandArray(views, "view");
         // Validate recommends array
         if (recommends.size() != handlers.size()) {

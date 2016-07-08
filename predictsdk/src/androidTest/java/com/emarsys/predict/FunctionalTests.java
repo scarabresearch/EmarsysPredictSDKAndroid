@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
@@ -60,6 +61,7 @@ public class FunctionalTests {
         // Replace it with your own Merchant Id before run.
         session.setMerchantId("1A74F439823D2CB4");
         assertEquals(session.getMerchantId(), "1A74F439823D2CB4");
+        Session.getInstance().setSecure(true);
     }
 
     class ErrorHolder {
@@ -83,6 +85,8 @@ public class FunctionalTests {
         t.purchase("101", items2);
         t.searchTerm("great sci-fi classics");
         t.searchTerm("great horror classics");
+        t.tag("sci-fi");
+        t.tag("horror");
         t.view("112");
         t.view("172");
         Session.getInstance().sendTransaction(t, new ErrorHandler() {
@@ -151,8 +155,71 @@ public class FunctionalTests {
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
+        t.tag("sci-fi");
+        t.tag("horror");
+        Session.getInstance().sendTransaction(t, errorHandler);
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertEquals(1, signal.getCount());
+
+        t = new Transaction();
         t.view("112");
         t.view("172");
+        Session.getInstance().sendTransaction(t, errorHandler);
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertEquals(1, signal.getCount());
+    }
+
+    @Test
+    public void testERROR_INVALID_ARG_empty_string() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        ErrorHandler errorHandler = new ErrorHandler() {
+            @Override
+            public void onError(@NonNull Error error) {
+                Log.d(TAG, error.toString());
+                signal.countDown();
+            }
+        };
+
+        Transaction t = new Transaction();
+        List<CartItem> items = Arrays.asList(new CartItem("", 80f, 2));
+        t.cart(items);
+        Session.getInstance().sendTransaction(t, errorHandler);
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertEquals(1, signal.getCount());
+
+        t = new Transaction();
+        t.category("");
+        Session.getInstance().sendTransaction(t, errorHandler);
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertEquals(1, signal.getCount());
+
+        t = new Transaction();
+        t.keyword("");
+        Session.getInstance().sendTransaction(t, errorHandler);
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertEquals(1, signal.getCount());
+
+        t = new Transaction();
+        t.purchase("", items);
+        Session.getInstance().sendTransaction(t, errorHandler);
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertEquals(1, signal.getCount());
+
+        t = new Transaction();
+        t.searchTerm("");
+        Session.getInstance().sendTransaction(t, errorHandler);
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertEquals(1, signal.getCount());
+
+        t = new Transaction();
+        t.tag("");
+        Session.getInstance().sendTransaction(t, errorHandler);
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertEquals(1, signal.getCount());
+
+        t = new Transaction();
+        t.view("");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -366,14 +433,39 @@ public class FunctionalTests {
     }
 
     @Test
-    public void testEmailHash() throws MalformedURLException {
-        Session.getInstance().setCustomerEmail("john@doe.com");
+    public void testCustomerId() {
+        Session.getInstance().setCustomerId("sample-customer-id");
         String url = Session.getInstance().generateGET(new Transaction());
-        final int ehStart = url.indexOf("eh=");
-        url = url.substring(ehStart);
-        final int ehEnd = url.indexOf("&");
-        String hash = ehEnd == -1 ? url.substring(3, url.length()) : url.substring(3, ehEnd);
-        assertEquals(hash, "fd9c796f4269b3481");
+        final int a = url.indexOf("ci=");
+        url = url.substring(a);
+        final int b = url.indexOf("&");
+        String val = b == -1 ? url.substring(3, url.length()) : url.substring(3, b);
+        assertEquals(val, "sample-customer-id");
+    }
+
+    @Test
+    public void testEmailHash() throws MalformedURLException {
+        Session.getInstance().setCustomerEmail(" CUSTOMER@TEST-mail.com ");
+        String url = Session.getInstance().generateGET(new Transaction());
+        final int a = url.indexOf("eh=");
+        url = url.substring(a);
+        final int b = url.indexOf("&");
+        String val = b == -1 ? url.substring(3, url.length()) : url.substring(3, b);
+        assertEquals(val, "19d0b2cccd0b49e81");
+    }
+
+    @Test
+    public void testSecure() throws MalformedURLException {
+        Session.getInstance().setSecure(true);
+        String url = Session.getInstance().generateGET(new Transaction());
+        assertTrue(url.startsWith("https://"));
+    }
+
+    @Test
+    public void testInSecure() throws MalformedURLException {
+        Session.getInstance().setSecure(false);
+        String url = Session.getInstance().generateGET(new Transaction());
+        assertTrue(url.startsWith("http://"));
     }
 
 }

@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * The recommendation request.
  *
- * @warning RecommendationRequests are not reusable.
+ * RecommendationRequests are not reusable.
  */
 public class RecommendationRequest {
 
