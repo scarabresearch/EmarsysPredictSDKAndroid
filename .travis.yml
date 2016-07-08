@@ -1,0 +1,22 @@
+language: android
+jdk: oraclejdk8
+env:
+  global:
+    - secure: "Jp5Qp5waPxBKMwbmCzCkXLvp8sWHDtYd2CXK9I6HBkQ/DnplyHgz0wJInJZHZJaMQGXW
+   /EznT2V0B6ndXHy2z9WmLPs76oRPLLTWJZV7CbDfGtP2hrDK1qxA40Ik9oR4VpmzsjEzDQuV0AysovPDy5Ofttx5IXU48ak765X9SeBaAEu2dc1ImMGw+BA5dnQK3mf991AqO8ygyNrA79xNESgE+BPezrAQ+QPuU6RCo7iqwEZUs3T/O0Dqvo7l23lU9c0ltR2Yy09QXvTmQ/5iq9UKEQz1d7cC3aOsE05mA+o/KvuBHhR+t9C+zk4XA8vmlC2Sf67EGWpzqNoAtQBQt7OlbVrT6LssKmA+A5O83hmE9/GX3vpi8QD3TBN6bCEThz/S91ke8jsBJXlFI8U9VkU3gtvWG7wwNW1ARYd/P3ajl6pCKI74Y6nRCM0ZXqh1bk5ex3FKZEESg2P5AJJAZdFajHy4u5Novwt8QA0pr6WWSTj4iOAUlP6jqK8bSKDvZwPteJrQJFu4Kh5qFj5vML0Q4OseQfi7DpDigrJVkbzkovJLRibXT9YFTv0g2LuWstlL1pdT4Pxxk+vs2HwyG4vQcak9PTw+jB0SOthiFlNxHiMP0m6V/51JsoJfL0H54/bIb2ufRb07bE2hy5v+nbWLiG9iArm5ebxkwOZGD9M="
+    - secure: "EuNLoqnDFrjULrqcej4YuzN68763mw18O4R20sDV1d9+QTbsx15XAq
+   +m3jDPTMccoZemh7HdfGYXlL5OSGZq33olrgp3rNyIYEm/SBnW+atpHbsem4a0wbhnFpTOEKq24brIwKcZ4rLBqIyavfaug8Wci80a8Zqk+bHHLjVPMVH4OEdNX6Pbv1RHtJIxKSUkBYIb05rqIgaSpjbdpmlWixT05GJk+b5gtplxod559I1FaZx46cnwipiQhGTyEFoG7Y5rBZ+lF9O52U3wS/ARPGj6di8nNtdhtwHvf4/rjsHrFtBJaVSTmAA3qFb3bvbpQVd1126kb0MwEKI1ADqIx6SMSIbO8PpSeTjPuTqgHx5Qux1+50+AkXrc7y74r1I3pC4odbzRq1xnd3EhXFGWJma7mjxWoTqfH/dsUmm78APAG+yRlcwhwerHj0Se3QzeUpvnUki+HVTsLhOmn6doWo3D6R77oQ/oPlayRkpZFo2Bjqr0SObq7C+Jm1l+byHjWxXQnXDmXzxYM/yYHNih/9Lh9NaDfBSGt3kbgpJapGNC0Kem9e5MorNTOKdxRKc3k3NSx5u5kO+kAiEQsvCGZBPr7ZVvoLD9UrvPw9W/vGVfWwNgcbHyaeeimwy3WulzaVcjM9U6vrZSRz/lJQrS4QAkxz2zcyTtd/eQtZ+2kKU="
+android:
+  components:
+    - build-tools-22.0.1
+    - android-16
+    - extra-android-m2repository
+    - sys-img-armeabi-v7a-android-16
+    - sys-img-x86-android-16
+before_script:
+  - echo no | android create avd --force -n test -t android-16 --abi armeabi-v7a
+  - emulator -avd test -no-skin -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
+  - ./gradlew cAT -i
+script: ./gradlew bintrayUploadOnTag
