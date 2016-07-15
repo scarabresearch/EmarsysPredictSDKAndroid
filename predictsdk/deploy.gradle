@@ -41,7 +41,7 @@ install {
             version artifact.version
             name artifact.artifactId
             url artifact.siteUrl
-            inceptionYear artifact.inceptionYear
+            inceptionYear '2016'
             licenses {
                 license {
                     name 'Apache-2.0'
@@ -54,6 +54,14 @@ install {
                 developerConnection artifact.gitUrl
                 url artifact.siteUrl
             }
+            description 'Emarsys Predict SDK for Android'
+            developers {
+                developer {
+                    id 'scarabresearch'
+                    name 'Scarab Research Ltd.'
+                }
+            }
+
         }
     }
 }
