@@ -1,5 +1,7 @@
 # Emarsys Predict SDK for Android
 
+This library makes it possible to use the Emarsys Predict services from Android applications.
+
 ### Requirements
 - Android Studio 2
 
