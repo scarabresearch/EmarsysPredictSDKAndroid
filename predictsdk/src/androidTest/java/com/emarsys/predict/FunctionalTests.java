@@ -89,6 +89,8 @@ public class FunctionalTests {
         t.tag("horror");
         t.view("112");
         t.view("172");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22keyword%22,%22m%22:%22Multiple%20calls%20of%20keyword%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22cart%22,%22m%22:%22Multiple%20calls%20of%20cart%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22category%22,%22m%22:%22Multiple%20calls%20of%20category%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22purchase%22,%22m%22:%22Multiple%20calls%20of%20purchase%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22searchTerm%22,%22m%22:%22Multiple%20calls%20of%20searchTerm%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22tag%22,%22m%22:%22Multiple%20calls%20of%20tag%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22view%22,%22m%22:%22Multiple%20calls%20of%20view%20command%22%7D%5D");
         Session.getInstance().sendTransaction(t, new ErrorHandler() {
             @Override
             public void onError(@NonNull Error error) {
@@ -122,6 +124,8 @@ public class FunctionalTests {
         List<CartItem> items2 = Arrays.asList(new CartItem("172", 159f, 1));
         t.cart(items);
         t.cart(items2);
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22cart%22,%22m%22:%22Multiple%20calls%20of%20cart%20command%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -129,6 +133,8 @@ public class FunctionalTests {
         t = new Transaction();
         t.category("book > literature > sci-fi");
         t.category("book > literature > horror");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22category%22,%22m%22:%22Multiple%20calls%20of%20category%20command%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -136,6 +142,8 @@ public class FunctionalTests {
         t = new Transaction();
         t.keyword("sci-fi");
         t.keyword("horror");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22keyword%22,%22m%22:%22Multiple%20calls%20of%20keyword%20command%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -143,6 +151,8 @@ public class FunctionalTests {
         t = new Transaction();
         t.purchase("100", items);
         t.purchase("101", items2);
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22purchase%22,%22m%22:%22Multiple%20calls%20of%20purchase%20command%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -150,6 +160,8 @@ public class FunctionalTests {
         t = new Transaction();
         t.searchTerm("great sci-fi classics");
         t.searchTerm("great horror classics");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22searchTerm%22,%22m%22:%22Multiple%20calls%20of%20searchTerm%20command%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -157,6 +169,8 @@ public class FunctionalTests {
         t = new Transaction();
         t.tag("sci-fi");
         t.tag("horror");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22tag%22,%22m%22:%22Multiple%20calls%20of%20tag%20command%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -164,6 +178,8 @@ public class FunctionalTests {
         t = new Transaction();
         t.view("112");
         t.view("172");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22view%22,%22m%22:%22Multiple%20calls%20of%20view%20command%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -184,42 +200,56 @@ public class FunctionalTests {
         Transaction t = new Transaction();
         List<CartItem> items = Arrays.asList(new CartItem("", 80f, 2));
         t.cart(items);
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22cart%22,%22m%22:%22Invalid%20argument%20in%20cart%20command:%20itemId%20should%20not%20be%20an%20empty%20string%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.category("");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22category%22,%22m%22:%22Invalid%20argument%20in%20category%20command:%20category%20should%20not%20be%20an%20empty%20string%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.keyword("");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22keyword%22,%22m%22:%22Invalid%20argument%20in%20keyword%20command:%20keyword%20should%20not%20be%20an%20empty%20string%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.purchase("", items);
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22purchase%22,%22m%22:%22Invalid%20argument%20in%20purchase%20command:%20orderId%20should%20not%20be%20an%20empty%20string%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.searchTerm("");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22searchTerm%22,%22m%22:%22Invalid%20argument%20in%20searchTerm%20command:%20searchTerm%20should%20not%20be%20an%20empty%20string%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.tag("");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22tag%22,%22m%22:%22Invalid%20argument%20in%20tag%20command:%20tag%20should%20not%20be%20an%20empty%20string%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.view("");
+        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
+                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22view%22,%22m%22:%22Invalid%20argument%20in%20view%20command:%20itemId%20should%20not%20be%20an%20empty%20string%22%7D%5D");
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -436,22 +466,23 @@ public class FunctionalTests {
     public void testCustomerId() {
         Session.getInstance().setCustomerId("sample-customer-id");
         String url = Session.getInstance().generateGET(new Transaction());
-        final int a = url.indexOf("ci=");
-        url = url.substring(a);
-        final int b = url.indexOf("&");
-        String val = b == -1 ? url.substring(3, url.length()) : url.substring(3, b);
-        assertEquals(val, "sample-customer-id");
+        assertEquals(getParameterValue("ci", url), "sample-customer-id");
     }
 
     @Test
     public void testEmailHash() throws MalformedURLException {
         Session.getInstance().setCustomerEmail(" CUSTOMER@TEST-mail.com ");
         String url = Session.getInstance().generateGET(new Transaction());
-        final int a = url.indexOf("eh=");
+        assertEquals(getParameterValue("eh", url), "19d0b2cccd0b49e81");
+    }
+
+    String getParameterValue(String parameterName, String url) {
+        final int a = url.indexOf(parameterName);
         url = url.substring(a);
         final int b = url.indexOf("&");
-        String val = b == -1 ? url.substring(3, url.length()) : url.substring(3, b);
-        assertEquals(val, "19d0b2cccd0b49e81");
+        String val = b == -1 ? url.substring(parameterName.length() + 1, url.length()) : url
+                .substring(parameterName.length() + 1, b);
+        return val;
     }
 
     @Test

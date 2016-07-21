@@ -59,21 +59,6 @@ abstract class Filter extends Command {
         this(Arrays.asList(value), rule, catalogField);
     }
 
-    @Override
-    public String toString() {
-        String ret = "";
-        ret += "{\"f\":\"";
-        ret += catalogField;
-        ret += "\",\"r\":\"";
-        ret += rule;
-        ret += "\",\"v\":\"";
-        ret += StringUtil.toStringWithDelimiter(values, "|");
-        ret += "\",\"n\":";
-        ret += (this instanceof ExcludeCommand) ? "false" : "true";
-        ret += "}";
-        return ret;
-    }
-
 }
 
 /**

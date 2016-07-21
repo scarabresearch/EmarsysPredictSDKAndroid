@@ -16,6 +16,11 @@
 
 package com.emarsys.predict;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.apache.commons.collections4.map.LinkedMap;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -246,6 +251,8 @@ public class Transaction {
     }
 
     String serialize() {
+        errors.clear();
+
         // Validate commands
         validateCommands();
 
@@ -346,7 +353,17 @@ public class Transaction {
         }
         if (!filters.isEmpty()) {
             // Append filters
-            params.put("ex", "[" + StringUtil.toStringWithDelimiter(filters, ",") + "]");
+            List<Map<String, String>> l = new ArrayList<Map<String, String>>();
+            for (Filter next : filters) {
+                Map<String, String> m = new HashMap<String, String>();
+                m.put("f", next.catalogField);
+                m.put("r", next.rule);
+                m.put("v", StringUtil.toStringWithDelimiter(next.values, "|"));
+                m.put("n", (next instanceof ExcludeCommand) ? "false" : "true");
+                l.add(m);
+            }
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            params.put("ex", gson.toJson(l));
         }
 
         // Handle searchTerms
@@ -378,7 +395,16 @@ public class Transaction {
 
         // Append errors
         if (!errors.isEmpty()) {
-            params.put("error", "[" + StringUtil.toStringWithDelimiter(errors, ",") + "]");
+            List<Map<String, String>> l = new ArrayList<Map<String, String>>();
+            for (ErrorParameter next : errors) {
+                Map<String, String> m = new LinkedMap<String, String>();
+                m.put("t", next.type);
+                m.put("c", next.command);
+                m.put("m", next.message);
+                l.add(m);
+            }
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            params.put("error", gson.toJson(l));
         }
 
         return params.toString();
@@ -410,7 +436,6 @@ public class Transaction {
         if (commands.size() > 1) {
             ErrorParameter e = new ErrorParameter("MULTIPLE_CALL", command,
                     "Multiple calls of " + command + " command");
-            Log.d(TAG, e.toString());
             errors.add(e);
         }
         // Validate all commands in the array

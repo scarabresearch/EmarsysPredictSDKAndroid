@@ -21,27 +21,14 @@ package com.emarsys.predict;
  */
 class ErrorParameter {
 
-    private final String type;
-    private final String command;
-    private final String message;
+    final String type;
+    final String command;
+    final String message;
 
     ErrorParameter(String type, String command, String message) {
         this.type = type;
         this.command = command;
         this.message = message;
-    }
-
-    @Override
-    public String toString() {
-        String ret = "";
-        ret += "{\"t\":\"";
-        ret += type;
-        ret += "\",\"c\":\"";
-        ret += command;
-        ret += "\",\"m\":\"";
-        ret += message;
-        ret += "\"}";
-        return ret;
     }
 
 }
