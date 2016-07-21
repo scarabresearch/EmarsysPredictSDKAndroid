@@ -4,8 +4,6 @@ if [ "$TRAVIS_REPO_SLUG" == "scarabresearch/EmarsysPredictSDKAndroid" ] && \
    [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
    [ "$TRAVIS_BRANCH" == "master" ]; then
 
-  ./gradlew javadoc -i
-
   echo -e "Publishing javadoc...\n"
 
   cp -R javadoc $HOME/javadoc-latest

@@ -19,18 +19,6 @@ apply plugin: 'com.jfrog.bintray'
 
 def artifact = new Properties()
 artifact.load(project.file('deploy.properties').newDataInputStream())
-if (System.env.TRAVIS_TAG != null) {
-    artifact.version = System.env.TRAVIS_TAG
-}
-version = artifact.version
-group = artifact.groupId
-
-task bintrayUploadOnTag(dependsOn: 'clean') {
-    def tag = System.env.TRAVIS_TAG
-    if (tag != null && tag != "") {
-        dependsOn bintrayUpload
-    }
-}
 
 install {
     repositories.mavenInstaller {
@@ -41,6 +29,7 @@ install {
             version artifact.version
             name artifact.artifactId
             url artifact.siteUrl
+            description 'Emarsys Predict SDK for Android'
             inceptionYear '2016'
             licenses {
                 license {
@@ -54,14 +43,12 @@ install {
                 developerConnection artifact.gitUrl
                 url artifact.siteUrl
             }
-            description 'Emarsys Predict SDK for Android'
             developers {
                 developer {
                     id 'scarabresearch'
                     name 'Scarab Research Ltd.'
                 }
             }
-
         }
     }
 }
@@ -73,19 +60,57 @@ bintray {
     pkg {
         repo = "maven"
         name = artifact.artifactId
-        websiteUrl = artifact.siteUrl
-        vcsUrl = artifact.gitUrl
-        licenses = artifact.licenses
-        publish = true
         version {
             name = artifact.version
+        }
+        licenses = artifact.licenses
+        vcsUrl = artifact.gitUrl
+        websiteUrl = artifact.siteUrl
+        publish = true
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
+                authentication(userName: System.env.SONATYPE_USER, password: System.env.SONATYPE_PASSWORD)
+            }
+            pom.project {
+                packaging 'aar'
+                groupId artifact.groupId
+                artifactId artifact.artifactId
+                version artifact.version
+                name artifact.artifactId
+                url artifact.siteUrl
+                description 'Emarsys Predict SDK for Android'
+                inceptionYear '2016'
+                licenses {
+                    license {
+                        name 'Apache-2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+                scm {
+                    connection artifact.gitUrl
+                    developerConnection artifact.gitUrl
+                    url artifact.siteUrl
+                }
+                developers {
+                    developer {
+                        id 'scarabresearch'
+                        name 'Scarab Research Ltd.'
+                    }
+                }
+            }
         }
     }
 }
 
 task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
