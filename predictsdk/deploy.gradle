@@ -20,9 +20,11 @@ apply plugin: 'com.jfrog.bintray'
 def artifact = new Properties()
 artifact.load(project.file('deploy.properties').newDataInputStream())
 
+def pomDescriptor
+
 install {
     repositories.mavenInstaller {
-        pom.project {
+        pomDescriptor = pom.project {
             packaging 'aar'
             groupId artifact.groupId
             artifactId artifact.artifactId
@@ -76,34 +78,7 @@ uploadArchives {
             repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
                 authentication(userName: System.env.SONATYPE_USER, password: System.env.SONATYPE_PASSWORD)
             }
-            pom.project {
-                packaging 'aar'
-                groupId artifact.groupId
-                artifactId artifact.artifactId
-                version artifact.version
-                name artifact.artifactId
-                url artifact.siteUrl
-                description 'Emarsys Predict SDK for Android'
-                inceptionYear '2016'
-                licenses {
-                    license {
-                        name 'Apache-2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-                scm {
-                    connection artifact.gitUrl
-                    developerConnection artifact.gitUrl
-                    url artifact.siteUrl
-                }
-                developers {
-                    developer {
-                        id 'scarabresearch'
-                        name 'Scarab Research Ltd.'
-                    }
-                }
-            }
+            pomDescriptor
         }
     }
 }
