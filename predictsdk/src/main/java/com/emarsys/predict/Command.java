@@ -17,6 +17,7 @@
 package com.emarsys.predict;
 
 import android.util.Log;
+import com.squareup.okhttp.HttpUrl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +38,8 @@ abstract class Command {
         Log.d(getClass().getSimpleName(), msg);
         return new ErrorParameter("INVALID_ARG", command, msg);
     }
+
+    abstract void buildQuery(HttpUrl.Builder urlBuilder);
 
 }
 
@@ -85,6 +88,11 @@ class ExcludeCommand extends Filter {
         return ret;
     }
 
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+
+    }
+
 }
 
 /**
@@ -109,6 +117,11 @@ class IncludeCommand extends Filter {
             }
         }
         return ret;
+    }
+
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+
     }
 
 }
@@ -151,6 +164,11 @@ class CartCommand extends Command {
         return StringUtil.toStringWithDelimiter(l, "|");
     }
 
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+        urlBuilder.addQueryParameter("ca", toString());
+    }
+
 }
 
 /**
@@ -167,6 +185,11 @@ class StringCommand extends Command {
     @Override
     public String toString() {
         return value;
+    }
+
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+
     }
 
 }
@@ -189,6 +212,11 @@ class AvailabilityZoneCommand extends StringCommand {
         return ret;
     }
 
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+        urlBuilder.addQueryParameter("az", toString());
+    }
+
 }
 
 /**
@@ -207,6 +235,11 @@ class CategoryCommand extends StringCommand {
             ret.add(createEmptyStringErrorParameter("category", "category"));
         }
         return ret;
+    }
+
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+        urlBuilder.addQueryParameter("vc", toString());
     }
 
 }
@@ -229,6 +262,11 @@ class KeywordCommand extends StringCommand {
         return ret;
     }
 
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+        urlBuilder.addQueryParameter("k", toString());
+    }
+
 }
 
 /**
@@ -247,6 +285,11 @@ class TagCommand extends StringCommand {
             ret.add(createEmptyStringErrorParameter("tag", "tag"));
         }
         return ret;
+    }
+
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+        urlBuilder.addQueryParameter("t", toString());
     }
 
 }
@@ -276,6 +319,11 @@ class PurchaseCommand extends CartCommand {
         return ret;
     }
 
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+        urlBuilder.addQueryParameter("co", toString()).addQueryParameter("oi", getOrderId());
+    }
+
 }
 
 /**
@@ -294,6 +342,11 @@ class SearchTermCommand extends StringCommand {
             ret.add(createEmptyStringErrorParameter("searchTerm", "searchTerm"));
         }
         return ret;
+    }
+
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+        urlBuilder.addQueryParameter("q", toString());
     }
 
 }
@@ -332,6 +385,11 @@ class ViewCommand extends Command {
             ret += trackedItem.getResult().getCohort();
         }
         return ret;
+    }
+
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+        urlBuilder.addQueryParameter("v", toString());
     }
 
 }
@@ -387,6 +445,11 @@ class RecommendCommand extends Command {
         ret += ",o:";
         ret += 0;
         return ret;
+    }
+
+    @Override
+    void buildQuery(HttpUrl.Builder urlBuilder) {
+
     }
 
 }

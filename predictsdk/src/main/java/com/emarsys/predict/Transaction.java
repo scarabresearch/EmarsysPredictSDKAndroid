@@ -19,6 +19,7 @@ package com.emarsys.predict;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import com.squareup.okhttp.HttpUrl;
 import org.apache.commons.collections4.map.LinkedMap;
 
 import android.support.annotation.NonNull;
@@ -34,26 +35,6 @@ import java.util.Map;
  * The transaction. Please send transaction instances only once.
  */
 public class Transaction {
-
-    /**
-     * Holds query information for the request.
-     */
-    private class QueryParams extends HashMap {
-
-        Object put(String key, int value) {
-            return put(key, Integer.valueOf(value));
-        }
-
-        @Override
-        public String toString() {
-            List<String> l = new ArrayList<String>();
-            for (Object next : keySet()) {
-                l.add(next + "=" + get(next));
-            }
-            return StringUtil.toStringWithDelimiter(l, "&");
-        }
-
-    }
 
     private static final String TAG = Transaction.class.getSimpleName();
 
@@ -250,13 +231,11 @@ public class Transaction {
         handlers.put(key, completionHandler);
     }
 
-    String serialize() {
+    void serialize(HttpUrl.Builder builder) {
         errors.clear();
 
         // Validate commands
         validateCommands();
-
-        QueryParams params = new QueryParams();
 
         // Handle customerId
         Session session = Session.getInstance();
@@ -269,7 +248,7 @@ public class Transaction {
                 Log.d(TAG, e.toString());
                 errors.add(e);
             }
-            params.put("ci", customerId);
+            builder.addQueryParameter("ci", customerId);
         }
 
         // Handle customerEmail
@@ -283,45 +262,44 @@ public class Transaction {
                 errors.add(e);
             }
             String sha1 = StringUtil.sha1(customerEmail.trim().toLowerCase());
-            params.put("eh", sha1.toLowerCase().substring(0, 16) + "1");
+            builder.addQueryParameter("eh", sha1.toLowerCase().substring(0, 16) + "1");
         }
 
         // Handle keywords
         if (!keywords.isEmpty()) {
             KeywordCommand cmd = keywords.get(keywords.size() - 1);
-            params.put("k", cmd.toString());
+            cmd.buildQuery(builder);
         }
 
         // Handle tags
         if (!tags.isEmpty()) {
             TagCommand cmd = tags.get(tags.size() - 1);
-            params.put("t", cmd.toString());
+            cmd.buildQuery(builder);
         }
 
         // Handle availabilityZones
         if (!availabilityZones.isEmpty()) {
             AvailabilityZoneCommand cmd = availabilityZones.get(availabilityZones.size() - 1);
-            params.put("az", cmd.toString());
+            cmd.buildQuery(builder);
         }
 
         // Handle carts
         if (!carts.isEmpty()) {
-            params.put("cv", 1);
+            builder.addQueryParameter("cv", String.valueOf(1));
             CartCommand cmd = carts.get(carts.size() - 1);
-            params.put("ca", cmd.toString());
+            cmd.buildQuery(builder);
         }
 
         // Handle categories
         if (!categories.isEmpty()) {
             CategoryCommand cmd = categories.get(categories.size() - 1);
-            params.put("vc", cmd.toString());
+            cmd.buildQuery(builder);
         }
 
         // Handle purchases
         if (!purchases.isEmpty()) {
             PurchaseCommand cmd = purchases.get(purchases.size() - 1);
-            params.put("co", cmd.toString());
-            params.put("oi", cmd.getOrderId());
+            cmd.buildQuery(builder);
         }
 
         // Handle recommends
@@ -343,12 +321,12 @@ public class Transaction {
         }
         if (!features.isEmpty()) {
             // Append features
-            params.put("f", StringUtil.toStringWithDelimiter(features, "|"));
+            builder.addQueryParameter("f", StringUtil.toStringWithDelimiter(features, "|"));
         }
         if (!baselines.isEmpty()) {
             // Append baselines
             for (String next : baselines) {
-                params.put("pi", next);
+                builder.addQueryParameter("pi", next);
             }
         }
         if (!filters.isEmpty()) {
@@ -363,34 +341,34 @@ public class Transaction {
                 l.add(m);
             }
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            params.put("ex", gson.toJson(l));
+            builder.addQueryParameter("ex", gson.toJson(l));
         }
 
         // Handle searchTerms
         if (!searchTerms.isEmpty()) {
             SearchTermCommand cmd = searchTerms.get(searchTerms.size() - 1);
-            params.put("q", cmd.toString());
+            cmd.buildQuery(builder);
         }
 
         // Handle views
         if (!views.isEmpty()) {
             ViewCommand cmd = views.get(views.size() - 1);
-            params.put("v", cmd.toString());
+            cmd.buildQuery(builder);
         }
 
         // MAGIC
-        params.put("cp", 1);
+        builder.addQueryParameter("cp", String.valueOf(1));
 
         // Handle advertiserId
         String advertisingIdentifier = IdentifierManager.getInstance().getAdvertisingIdentifier();
         if (advertisingIdentifier != null) {
-            params.put("vi", advertisingIdentifier);
+            builder.addQueryParameter("vi", advertisingIdentifier);
         }
 
         // Handle session
         String sessionId = session.getSession();
         if (sessionId != null) {
-            params.put("s", sessionId);
+            builder.addQueryParameter("s", sessionId);
         }
 
         // Append errors
@@ -404,10 +382,8 @@ public class Transaction {
                 l.add(m);
             }
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            params.put("error", gson.toJson(l));
+            builder.addQueryParameter("error", gson.toJson(l));
         }
-
-        return params.toString();
     }
 
     private void validateCommands() {

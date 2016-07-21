@@ -16,6 +16,10 @@
 
 package com.emarsys.predict;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,10 +30,14 @@ import android.support.annotation.Nullable;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -89,8 +97,59 @@ public class FunctionalTests {
         t.tag("horror");
         t.view("112");
         t.view("172");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22keyword%22,%22m%22:%22Multiple%20calls%20of%20keyword%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22cart%22,%22m%22:%22Multiple%20calls%20of%20cart%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22category%22,%22m%22:%22Multiple%20calls%20of%20category%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22purchase%22,%22m%22:%22Multiple%20calls%20of%20purchase%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22searchTerm%22,%22m%22:%22Multiple%20calls%20of%20searchTerm%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22tag%22,%22m%22:%22Multiple%20calls%20of%20tag%20command%22%7D,%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22view%22,%22m%22:%22Multiple%20calls%20of%20view%20command%22%7D%5D");
+        final List<Map<String, String>> qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "keyword");
+            qmap.put("m", "Multiple calls of keyword command");
+            qlist.add(qmap);
+        }
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "cart");
+            qmap.put("m", "Multiple calls of cart command");
+            qlist.add(qmap);
+        }
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "category");
+            qmap.put("m", "Multiple calls of category command");
+            qlist.add(qmap);
+        }
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "purchase");
+            qmap.put("m", "Multiple calls of purchase command");
+            qlist.add(qmap);
+        }
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "searchTerm");
+            qmap.put("m", "Multiple calls of searchTerm command");
+            qlist.add(qmap);
+        }
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "tag");
+            qmap.put("m", "Multiple calls of tag command");
+            qlist.add(qmap);
+        }
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "view");
+            qmap.put("m", "Multiple calls of view command");
+            qlist.add(qmap);
+        }
+
+        testError(Session.getInstance().generateGET(t), qlist);
+
         Session.getInstance().sendTransaction(t, new ErrorHandler() {
             @Override
             public void onError(@NonNull Error error) {
@@ -124,8 +183,16 @@ public class FunctionalTests {
         List<CartItem> items2 = Arrays.asList(new CartItem("172", 159f, 1));
         t.cart(items);
         t.cart(items2);
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22cart%22,%22m%22:%22Multiple%20calls%20of%20cart%20command%22%7D%5D");
+        List<Map<String, String>> qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "cart");
+            qmap.put("m", "Multiple calls of cart command");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
+
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -133,8 +200,15 @@ public class FunctionalTests {
         t = new Transaction();
         t.category("book > literature > sci-fi");
         t.category("book > literature > horror");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22category%22,%22m%22:%22Multiple%20calls%20of%20category%20command%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "category");
+            qmap.put("m", "Multiple calls of category command");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -142,8 +216,15 @@ public class FunctionalTests {
         t = new Transaction();
         t.keyword("sci-fi");
         t.keyword("horror");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22keyword%22,%22m%22:%22Multiple%20calls%20of%20keyword%20command%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "keyword");
+            qmap.put("m", "Multiple calls of keyword command");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -151,8 +232,15 @@ public class FunctionalTests {
         t = new Transaction();
         t.purchase("100", items);
         t.purchase("101", items2);
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22purchase%22,%22m%22:%22Multiple%20calls%20of%20purchase%20command%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "purchase");
+            qmap.put("m", "Multiple calls of purchase command");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -160,8 +248,15 @@ public class FunctionalTests {
         t = new Transaction();
         t.searchTerm("great sci-fi classics");
         t.searchTerm("great horror classics");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22searchTerm%22,%22m%22:%22Multiple%20calls%20of%20searchTerm%20command%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "searchTerm");
+            qmap.put("m", "Multiple calls of searchTerm command");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -169,8 +264,15 @@ public class FunctionalTests {
         t = new Transaction();
         t.tag("sci-fi");
         t.tag("horror");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22tag%22,%22m%22:%22Multiple%20calls%20of%20tag%20command%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "tag");
+            qmap.put("m", "Multiple calls of tag command");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -178,8 +280,15 @@ public class FunctionalTests {
         t = new Transaction();
         t.view("112");
         t.view("172");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22MULTIPLE_CALL%22,%22c%22:%22view%22,%22m%22:%22Multiple%20calls%20of%20view%20command%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "MULTIPLE_CALL");
+            qmap.put("c", "view");
+            qmap.put("m", "Multiple calls of view command");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -200,56 +309,105 @@ public class FunctionalTests {
         Transaction t = new Transaction();
         List<CartItem> items = Arrays.asList(new CartItem("", 80f, 2));
         t.cart(items);
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22cart%22,%22m%22:%22Invalid%20argument%20in%20cart%20command:%20itemId%20should%20not%20be%20an%20empty%20string%22%7D%5D");
+        List<Map<String, String>> qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "INVALID_ARG");
+            qmap.put("c", "cart");
+            qmap.put("m", "Invalid argument in cart command: itemId should not be an empty string");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.category("");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22category%22,%22m%22:%22Invalid%20argument%20in%20category%20command:%20category%20should%20not%20be%20an%20empty%20string%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "INVALID_ARG");
+            qmap.put("c", "category");
+            qmap.put("m", "Invalid argument in category command: category should not be an empty string");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.keyword("");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22keyword%22,%22m%22:%22Invalid%20argument%20in%20keyword%20command:%20keyword%20should%20not%20be%20an%20empty%20string%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "INVALID_ARG");
+            qmap.put("c", "keyword");
+            qmap.put("m", "Invalid argument in keyword command: keyword should not be an empty string");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.purchase("", items);
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22purchase%22,%22m%22:%22Invalid%20argument%20in%20purchase%20command:%20orderId%20should%20not%20be%20an%20empty%20string%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "INVALID_ARG");
+            qmap.put("c", "purchase");
+            qmap.put("m", "Invalid argument in purchase command: orderId should not be an empty string");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.searchTerm("");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22searchTerm%22,%22m%22:%22Invalid%20argument%20in%20searchTerm%20command:%20searchTerm%20should%20not%20be%20an%20empty%20string%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "INVALID_ARG");
+            qmap.put("c", "searchTerm");
+            qmap.put("m", "Invalid argument in searchTerm command: searchTerm should not be an empty string");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.tag("");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22tag%22,%22m%22:%22Invalid%20argument%20in%20tag%20command:%20tag%20should%20not%20be%20an%20empty%20string%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "INVALID_ARG");
+            qmap.put("c", "tag");
+            qmap.put("m", "Invalid argument in tag command: tag should not be an empty string");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
 
         t = new Transaction();
         t.view("");
-        assertEquals(getParameterValue("error", Session.getInstance().generateGET(t)),
-                "%5B%7B%22t%22:%22INVALID_ARG%22,%22c%22:%22view%22,%22m%22:%22Invalid%20argument%20in%20view%20command:%20itemId%20should%20not%20be%20an%20empty%20string%22%7D%5D");
+        qlist = new ArrayList<Map<String, String>>();
+        {
+            final Map<String, String> qmap = new HashMap<String, String>();
+            qmap.put("t", "INVALID_ARG");
+            qmap.put("c", "view");
+            qmap.put("m", "Invalid argument in view command: itemId should not be an empty string");
+            qlist.add(qmap);
+        }
+        testError(Session.getInstance().generateGET(t), qlist);
         Session.getInstance().sendTransaction(t, errorHandler);
         signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
         assertEquals(1, signal.getCount());
@@ -497,6 +655,60 @@ public class FunctionalTests {
         Session.getInstance().setSecure(false);
         String url = Session.getInstance().generateGET(new Transaction());
         assertTrue(url.startsWith("http://"));
+    }
+
+    public static Map<String, String> getQueryMap(String urlString) {
+        URL url = null;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+
+        }
+
+        if (url != null) {
+            String[] params = url.getQuery().split("&");
+            Map<String, String> map = new HashMap<String, String>();
+            for (String param : params) {
+                String keyAndValue[] = param.split("=");
+                String name = keyAndValue[0];
+                String value = "";
+                if (keyAndValue.length > 1) {
+                    value =  keyAndValue[1];
+                }
+                map.put(name, value);
+            }
+            return map;
+        }
+
+        return null;
+    }
+
+    private List<Map<String, String>> jsonStringToMap(String source) {
+        source = source.replaceAll("%20", " ");
+        source = source.replaceAll("%22", "\"");
+        source = source.replaceAll("%5B", "[");
+        source = source.replaceAll("%5D", "]");
+        source = source.replaceAll("%7B", "{");
+        source = source.replaceAll("%7D", "}");
+        Type mapType = new TypeToken<List<Map<String, String>>>(){}.getType();
+        return new Gson().fromJson(source, mapType);
+    }
+
+    private void testError(String urlString, List<Map<String, String>> qlist) {
+        Map<String, String> resultMap = getQueryMap(urlString);
+        String resultError = resultMap.get("error");
+        List<Map<String, String>> parsedError = jsonStringToMap(resultError);
+
+        assertEquals(qlist.size(), parsedError.size());
+
+        for (int i=0; i<qlist.size(); i++) {
+            Map<String, String> expected = qlist.get(i);
+            Map<String, String> actual = parsedError.get(i);
+
+            for (String key : expected.keySet()) {
+                assertEquals(expected.get(key), actual.get(key));
+            }
+        }
     }
 
 }

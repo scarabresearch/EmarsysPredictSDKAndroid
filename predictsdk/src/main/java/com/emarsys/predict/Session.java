@@ -18,6 +18,7 @@ package com.emarsys.predict;
 
 import com.google.gson.Gson;
 
+import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -351,12 +352,16 @@ public class Session {
             // The merchantId is required
             throw new Error("The merchantId is required", Error.ERROR_MISSING_MERCHANT_ID, null);
         }
+
+        HttpUrl.Builder builder = new HttpUrl.Builder()
+                .scheme(secure ? "https" : "http")
+                .host(SERVER)
+                .addPathSegment("merchants")
+                .addPathSegment(merchantId);
         // Serialize query
-        String query = transaction.serialize();
-        Log.d(TAG, query);
-        return (secure ? "https" : "http") + "://" + SERVER + "/merchants/" + merchantId + "?" +
-                Uri.encode(query,
-                "@#&=*+-_.,:!?()/~'%");
+        transaction.serialize(builder);
+        Log.d(TAG, builder.build().query());
+        return builder.build().url().toString();
     }
 
 }
