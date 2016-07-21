@@ -1,3 +1,5 @@
 #!/bin/bash
 
-./gradlew bintrayUpload -i
+if [ -n "$TRAVIS_TAG" ]; then
+  ./gradlew bintrayUpload -i
+fi

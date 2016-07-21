@@ -1,3 +1,5 @@
 #!/bin/bash
 
-./gradlew uploadArchives -i
+if [ -n "$TRAVIS_TAG" ]; then
+  ./gradlew uploadArchives -i
+fi
