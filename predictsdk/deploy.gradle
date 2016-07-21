@@ -20,6 +20,10 @@ apply plugin: 'com.jfrog.bintray'
 def artifact = new Properties()
 artifact.load(project.file('deploy.properties').newDataInputStream())
 
+// for some reason need to separately specify groupId and version
+group = artifact.groupId
+version = artifact.version
+
 def pomDescriptor
 
 install {
