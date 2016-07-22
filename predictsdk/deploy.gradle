@@ -15,7 +15,9 @@
  */
 
 apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'signing'
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'io.codearte.nexus-staging'
 
 def artifact = new Properties()
 artifact.load(project.file('deploy.properties').newDataInputStream())
@@ -24,11 +26,18 @@ artifact.load(project.file('deploy.properties').newDataInputStream())
 group = artifact.groupId
 version = artifact.version
 
-def pomDescriptor
+signing {
+    sign configurations.archives
+}
+
+nexusStaging {
+  delayBetweenRetriesInMillis = 5000
+  numberOfRetries = 10
+}
 
 install {
     repositories.mavenInstaller {
-        pomDescriptor = pom.project {
+        pom.project {
             packaging 'aar'
             groupId artifact.groupId
             artifactId artifact.artifactId
@@ -79,10 +88,40 @@ bintray {
 uploadArchives {
     repositories {
         mavenDeployer {
+            beforeDeployment {
+                MavenDeployment deployment -> signing.signPom(deployment)
+            }
             repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
                 authentication(userName: System.env.SONATYPE_USER, password: System.env.SONATYPE_PASSWORD)
             }
-            pomDescriptor
+            pom.project {
+                packaging 'aar'
+                groupId artifact.groupId
+                artifactId artifact.artifactId
+                version artifact.version
+                name artifact.artifactId
+                url artifact.siteUrl
+                description 'Emarsys Predict SDK for Android'
+                inceptionYear '2016'
+                licenses {
+                    license {
+                        name 'Apache-2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+                scm {
+                    connection artifact.gitUrl
+                    developerConnection artifact.gitUrl
+                    url artifact.siteUrl
+                }
+                developers {
+                    developer {
+                        id 'scarabresearch'
+                        name 'Scarab Research Ltd.'
+                    }
+                }
+            }
         }
     }
 }
