@@ -2,10 +2,13 @@
   <head>
     <title>Emarsys Predict SDK for Android</title>
     <style>
+      pre code {
+        background-color: lightgray;
+      }
     </style>
   </head>
   <body>
-    <h1>Getting started</h1>
+    <h1>Using the SDK in your projects</h1>
     <p>
       Newest version of the SDK is regularly uploaded to both Maven Central and JCenter. You can add the SDK to your
       Android project by including the following dependency in your <code>pom.xml</code>:
@@ -17,15 +20,20 @@
 &lt/dependency&gt;</code></pre>
     <p>or if you are using Gradle:</p>
     <pre><code>compile 'com.scarabresearch:predictsdk:1.0.1'</code></pre>
+    <h1>Documentation</h1>
+    <p>
+      You can find the generated Javadoc <a href="javadoc">here</a>
+    </p>
+    <h1>Demo application</h1>
     <p>
       There is a demo application showing how to use the various SDK features. In order to build it, first download
       the source code from GitHub:
     <p>
     <pre><code>git clone https://github.com/scarabresearch/EmarsysMobileSamplesAndroid.git</code></pre>
     <p>
-      You can build the demo application either from Android Studio 2 or directly using Gradle. In the former case,
-      simply open the project and select <b>Run 'app'</b> from the <b>Run</b> menu. In the latter, issue the
-      following command:
+      You can build the demo application either from Android Studio (at least version 2) or directly using Gradle. In
+      the former case, simply open the project and select <b>Run 'app'</b> from the <b>Run</b> menu. In the latter,
+      issue the following command:
     </p>
     <pre><code>gradlew assembleRelease</code></pre>
     <p>
@@ -35,11 +43,27 @@
     </p>
     <pre><code>adb -d install &lt;apk-file&gt;</code></pre>
     <p>
-      where &lt;apk-file&gt; is the path to the generated <code>apk</code> file.
+      where <i>&lt;apk-file&gt;</i> is the path to the generated <code>apk</code> file.
     </p>
-    <h1>Documentation</h1>
+    <h1>Building the SDK from source</h1>
     <p>
-      You can find the generated Javadoc <a href="javadoc">here</a>
+      Download the source code from the GitHub repository:
+    </p>
+    <pre><code>git clone https://github.com/scarabresearch/EmarsysPredictSDKAndroid.git</code></pre>
+    <p>
+      You can build the SDK from Android Studio (using version 2 or later) by opening the project, and then selecting
+      <b>Make Project</b> from the <b>Build</b> menu. The generated <code>aar</code> file is placed in the
+      <code>predictsdk/build/output/aar</code> directory, and the <code>jar</code> file in
+      <code>predictsdk/build/libs</code>.
+    </p>
+    <p>
+      When using Gradle, issue the following command:
+    </p>
+    <pre><code>gradlew build</code></pre>
+    <p>
+      (assuming that the <code>sdk.dir</code> property in the file <code>local.properties</code> is set correctly). The
+      generated <code>aar</code> file is placed in the <code>predictsdk/build/output/aar</code> directory, and the
+      <code>jar</code> file in <code>predictsdk/build/libs</code>.
     </p>
   </body>
 </html>
