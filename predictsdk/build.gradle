@@ -69,7 +69,7 @@ dependencies {
     compile 'org.apache.commons:commons-collections4:4.0'
 
     androidTestCompile 'junit:junit:4.12'
-    androidTestCompile 'com.android.support.test:runner:0.3'
+    androidTestCompile 'com.android.support.test:runner:0.4'
 
     javadocDeps 'com.android.support:support-annotations:22.2.0'
     javadocDeps 'commons-codec:commons-codec:1.5'
