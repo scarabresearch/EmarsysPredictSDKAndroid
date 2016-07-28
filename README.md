@@ -1,5 +1,7 @@
 # Emarsys Predict SDK for Android
 
+[![Coverage Status](https://coveralls.io/repos/github/scarabresearch/EmarsysPredictSDKAndroid/badge.svg?branch=master)](https://coveralls.io/github/scarabresearch/EmarsysPredictSDKAndroid?branch=master)
+
 ## Overview
 
 This document describes the Emarsys Predict SDK for the Android platform. It is intended for Android mobile app developers who want to integrate Emarsys Web Extend or Predict Recommendations into native mobile app. The document describes the main Emarsys Predict Android SDK interface functions.
