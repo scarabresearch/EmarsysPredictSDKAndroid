@@ -19,7 +19,7 @@ package com.emarsys.predict;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -655,6 +655,164 @@ public class FunctionalTests {
         Session.getInstance().setSecure(false);
         String url = Session.getInstance().generateGET(new Transaction());
         assertTrue(url.startsWith("http://"));
+    }
+
+    @Test
+    public void testIncludeItemsWhereIs() {
+        Transaction t = new Transaction();
+        RecommendationRequest r = new RecommendationRequest("RELATED");
+        r.includeItemsWhereIs("item", "204");
+        t.recommend(r, new CompletionHandler() {
+            @Override
+            public void onCompletion(@NonNull RecommendationResult result) {
+                // Process result
+                Log.d(TAG, result.getFeatureId());
+                Assert.assertEquals(result.getFeatureId(), "RELATED");
+                for (RecommendedItem next : result.getProducts()) {
+                    assertEquals(next.getData().get("id"), "204");
+                    Log.d(TAG, next.toString());
+                }
+            }
+        });
+        t.view("172");
+        Session.getInstance().sendTransaction(t, new ErrorHandler() {
+            @Override
+            public void onError(@NonNull Error error) {
+                Log.d(TAG, error.toString());
+            }
+        });
+    }
+
+    @Test
+    public void testExcludeItemsWhereIs() {
+        Transaction t = new Transaction();
+        RecommendationRequest r = new RecommendationRequest("RELATED");
+        r.excludeItemsWhereIs("item", "204");
+        t.recommend(r, new CompletionHandler() {
+            @Override
+            public void onCompletion(@NonNull RecommendationResult result) {
+                // Process result
+                Log.d(TAG, result.getFeatureId());
+                Assert.assertEquals(result.getFeatureId(), "RELATED");
+                for (RecommendedItem next : result.getProducts()) {
+                    Assert.assertNotEquals(next.getData().get("id"), "204");
+                    Log.d(TAG, next.toString());
+                }
+            }
+        });
+        t.view("172");
+        Session.getInstance().sendTransaction(t, new ErrorHandler() {
+            @Override
+            public void onError(@NonNull Error error) {
+                Log.d(TAG, error.toString());
+            }
+        });
+    }
+
+    @Test
+    public void testIncludeItemsWhereIn() {
+        Transaction t = new Transaction();
+        RecommendationRequest r = new RecommendationRequest("RELATED");
+        final List<String> filter = Arrays.asList("204", "185");
+        r.includeItemsWhereIn("item", filter);
+        t.recommend(r, new CompletionHandler() {
+            @Override
+            public void onCompletion(@NonNull RecommendationResult result) {
+                // Process result
+                Log.d(TAG, result.getFeatureId());
+                Assert.assertEquals(result.getFeatureId(), "RELATED");
+                for (RecommendedItem next : result.getProducts()) {
+                    assertTrue(filter.contains(next.getData().get("id")));
+                    Log.d(TAG, next.toString());
+                }
+            }
+        });
+        t.view("172");
+        Session.getInstance().sendTransaction(t, new ErrorHandler() {
+            @Override
+            public void onError(@NonNull Error error) {
+                Log.d(TAG, error.toString());
+            }
+        });
+    }
+
+//    @Test
+//    public void testExcludeItemsWhereIn() {
+//        Transaction t = new Transaction();
+//        RecommendationRequest r = new RecommendationRequest("RELATED");
+//        final List<String> filter = Arrays.asList("204", "185");
+//        r.excludeItemsWhereIn("item", filter);
+//        t.recommend(r, new CompletionHandler() {
+//            @Override
+//            public void onCompletion(@NonNull RecommendationResult result) {
+//                // Process result
+//                Log.d(TAG, result.getFeatureId());
+//                Assert.assertEquals(result.getFeatureId(), "RELATED");
+//                for (RecommendedItem next : result.getProducts()) {
+//                    assertTrue(!filter.contains(next.getData().get("id")));
+//                    Log.d(TAG, next.toString());
+//                }
+//            }
+//        });
+//        t.view("172");
+//        Session.getInstance().sendTransaction(t, new ErrorHandler() {
+//            @Override
+//            public void onError(@NonNull Error error) {
+//                Log.d(TAG, error.toString());
+//            }
+//        });
+//    }
+
+    @Test
+    public void testIncludeItemsWhereHas() {
+        Transaction t = new Transaction();
+        RecommendationRequest r = new RecommendationRequest("RELATED");
+        r.includeItemsWhereHas("category", "Root Catalog>Handbags");
+        t.recommend(r, new CompletionHandler() {
+            @Override
+            public void onCompletion(@NonNull RecommendationResult result) {
+                // Process result
+                Log.d(TAG, result.getFeatureId());
+                Assert.assertEquals(result.getFeatureId(), "RELATED");
+                for (RecommendedItem next : result.getProducts()) {
+                    assertEquals(next.getData().get("category"), "Root Catalog>Handbags");
+                    Log.d(TAG, next.toString());
+                }
+            }
+        });
+        t.view("172");
+        Session.getInstance().sendTransaction(t, new ErrorHandler() {
+            @Override
+            public void onError(@NonNull Error error) {
+                Log.d(TAG, error.toString());
+            }
+        });
+    }
+
+    @Test
+    public void testExludeItemsWhereHas() {
+        Transaction t = new Transaction();
+        RecommendationRequest r = new RecommendationRequest("RELATED");
+        r.excludeItemsWhereHas("category", "Root Catalog>Handbags");
+        t.recommend(r, new CompletionHandler() {
+            @Override
+            public void onCompletion(@NonNull RecommendationResult result) {
+                // Process result
+                Log.d(TAG, result.getFeatureId());
+                assertEquals(result.getFeatureId(), "RELATED");
+                for (RecommendedItem next : result.getProducts()) {
+                    Assert.assertNotEquals(next.getData().get("category"), "Root Catalog>Handbags");
+                    Log.d(TAG, next.toString());
+                }
+            }
+        });
+        t.view("172");
+        Session.getInstance().sendTransaction(t, new ErrorHandler() {
+            @Override
+            public void onError(@NonNull Error error) {
+                Log.d(TAG, error.toString());
+            }
+        });
     }
 
     public static Map<String, String> getQueryMap(String urlString) {
