@@ -19,7 +19,9 @@ package com.emarsys.predict;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,7 +57,11 @@ public class RecommendedItem implements Serializable {
 
     @Override
     public String toString() {
-        return data.containsKey("item") ? data.get("item").toString() : super.toString();
+        List<String> l = new ArrayList<String>();
+        for (String key : data.keySet()) {
+            l.add(key + " = " + data.get(key));
+        }
+        return l.isEmpty() ? super.toString() : StringUtil.toStringWithDelimiter(l, ", ");
     }
 
 }

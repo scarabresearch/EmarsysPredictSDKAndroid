@@ -41,11 +41,11 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 public class FunctionalTests {
@@ -658,10 +658,12 @@ public class FunctionalTests {
     }
 
     @Test
-    public void testIncludeItemsWhereIs() {
+    public void testIncludeItemsWhereIs() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+        final ErrorHolder e = new ErrorHolder();
         Transaction t = new Transaction();
         RecommendationRequest r = new RecommendationRequest("RELATED");
-        r.includeItemsWhereIs("item", "204");
+        r.includeItemsWhereIs("item", "174");
         t.recommend(r, new CompletionHandler() {
             @Override
             public void onCompletion(@NonNull RecommendationResult result) {
@@ -669,9 +671,10 @@ public class FunctionalTests {
                 Log.d(TAG, result.getFeatureId());
                 Assert.assertEquals(result.getFeatureId(), "RELATED");
                 for (RecommendedItem next : result.getProducts()) {
-                    assertEquals(next.getData().get("id"), "204");
+                    assertEquals(next.getData().get("item"), "174");
                     Log.d(TAG, next.toString());
                 }
+                signal.countDown();
             }
         });
         t.view("172");
@@ -679,15 +682,21 @@ public class FunctionalTests {
             @Override
             public void onError(@NonNull Error error) {
                 Log.d(TAG, error.toString());
+                e.error = error;
+                signal.countDown();
             }
         });
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertNull(e.error);
     }
 
     @Test
-    public void testExcludeItemsWhereIs() {
+    public void testExcludeItemsWhereIs() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+        final ErrorHolder e = new ErrorHolder();
         Transaction t = new Transaction();
         RecommendationRequest r = new RecommendationRequest("RELATED");
-        r.excludeItemsWhereIs("item", "204");
+        r.excludeItemsWhereIs("item", "174");
         t.recommend(r, new CompletionHandler() {
             @Override
             public void onCompletion(@NonNull RecommendationResult result) {
@@ -695,9 +704,10 @@ public class FunctionalTests {
                 Log.d(TAG, result.getFeatureId());
                 Assert.assertEquals(result.getFeatureId(), "RELATED");
                 for (RecommendedItem next : result.getProducts()) {
-                    Assert.assertNotEquals(next.getData().get("id"), "204");
+                    Assert.assertNotEquals(next.getData().get("item"), "174");
                     Log.d(TAG, next.toString());
                 }
+                signal.countDown();
             }
         });
         t.view("172");
@@ -705,15 +715,21 @@ public class FunctionalTests {
             @Override
             public void onError(@NonNull Error error) {
                 Log.d(TAG, error.toString());
+                e.error = error;
+                signal.countDown();
             }
         });
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertNull(e.error);
     }
 
     @Test
-    public void testIncludeItemsWhereIn() {
+    public void testIncludeItemsWhereIn() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+        final ErrorHolder e = new ErrorHolder();
         Transaction t = new Transaction();
         RecommendationRequest r = new RecommendationRequest("RELATED");
-        final List<String> filter = Arrays.asList("204", "185");
+        final List<String> filter = Arrays.asList("174", "170");
         r.includeItemsWhereIn("item", filter);
         t.recommend(r, new CompletionHandler() {
             @Override
@@ -722,9 +738,10 @@ public class FunctionalTests {
                 Log.d(TAG, result.getFeatureId());
                 Assert.assertEquals(result.getFeatureId(), "RELATED");
                 for (RecommendedItem next : result.getProducts()) {
-                    assertTrue(filter.contains(next.getData().get("id")));
+                    assertTrue(filter.contains(next.getData().get("item")));
                     Log.d(TAG, next.toString());
                 }
+                signal.countDown();
             }
         });
         t.view("172");
@@ -732,42 +749,22 @@ public class FunctionalTests {
             @Override
             public void onError(@NonNull Error error) {
                 Log.d(TAG, error.toString());
+                e.error = error;
+                signal.countDown();
             }
         });
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertNull(e.error);
     }
 
-//    @Test
-//    public void testExcludeItemsWhereIn() {
-//        Transaction t = new Transaction();
-//        RecommendationRequest r = new RecommendationRequest("RELATED");
-//        final List<String> filter = Arrays.asList("204", "185");
-//        r.excludeItemsWhereIn("item", filter);
-//        t.recommend(r, new CompletionHandler() {
-//            @Override
-//            public void onCompletion(@NonNull RecommendationResult result) {
-//                // Process result
-//                Log.d(TAG, result.getFeatureId());
-//                Assert.assertEquals(result.getFeatureId(), "RELATED");
-//                for (RecommendedItem next : result.getProducts()) {
-//                    assertTrue(!filter.contains(next.getData().get("id")));
-//                    Log.d(TAG, next.toString());
-//                }
-//            }
-//        });
-//        t.view("172");
-//        Session.getInstance().sendTransaction(t, new ErrorHandler() {
-//            @Override
-//            public void onError(@NonNull Error error) {
-//                Log.d(TAG, error.toString());
-//            }
-//        });
-//    }
-
     @Test
-    public void testIncludeItemsWhereHas() {
+    public void testExcludeItemsWhereIn() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+        final ErrorHolder e = new ErrorHolder();
         Transaction t = new Transaction();
         RecommendationRequest r = new RecommendationRequest("RELATED");
-        r.includeItemsWhereHas("category", "Root Catalog>Handbags");
+        final List<String> filter = Arrays.asList("174", "170");
+        r.excludeItemsWhereIn("item", filter);
         t.recommend(r, new CompletionHandler() {
             @Override
             public void onCompletion(@NonNull RecommendationResult result) {
@@ -775,9 +772,10 @@ public class FunctionalTests {
                 Log.d(TAG, result.getFeatureId());
                 Assert.assertEquals(result.getFeatureId(), "RELATED");
                 for (RecommendedItem next : result.getProducts()) {
-                    assertEquals(next.getData().get("category"), "Root Catalog>Handbags");
+                    assertTrue(!filter.contains(next.getData().get("item")));
                     Log.d(TAG, next.toString());
                 }
+                signal.countDown();
             }
         });
         t.view("172");
@@ -785,15 +783,54 @@ public class FunctionalTests {
             @Override
             public void onError(@NonNull Error error) {
                 Log.d(TAG, error.toString());
+                e.error = error;
+                signal.countDown();
             }
         });
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertNull(e.error);
     }
 
     @Test
-    public void testExludeItemsWhereHas() {
+    public void testIncludeItemsWhereHas() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+        final ErrorHolder e = new ErrorHolder();
         Transaction t = new Transaction();
         RecommendationRequest r = new RecommendationRequest("RELATED");
-        r.excludeItemsWhereHas("category", "Root Catalog>Handbags");
+        r.includeItemsWhereHas("category", "Accessories");
+        t.recommend(r, new CompletionHandler() {
+            @Override
+            public void onCompletion(@NonNull RecommendationResult result) {
+                // Process result
+                Log.d(TAG, result.getFeatureId());
+                Assert.assertEquals(result.getFeatureId(), "RELATED");
+                for (RecommendedItem next : result.getProducts()) {
+                    assertEquals(next.getData().get("category"), "Accessories");
+                    Log.d(TAG, next.toString());
+                }
+                signal.countDown();
+            }
+        });
+        t.view("172");
+        Session.getInstance().sendTransaction(t, new ErrorHandler() {
+            @Override
+            public void onError(@NonNull Error error) {
+                Log.d(TAG, error.toString());
+                e.error = error;
+                signal.countDown();
+            }
+        });
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertNull(e.error);
+    }
+
+    @Test
+    public void testExludeItemsWhereHas() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+        final ErrorHolder e = new ErrorHolder();
+        Transaction t = new Transaction();
+        RecommendationRequest r = new RecommendationRequest("RELATED");
+        r.excludeItemsWhereHas("category", "Accessories");
         t.recommend(r, new CompletionHandler() {
             @Override
             public void onCompletion(@NonNull RecommendationResult result) {
@@ -801,9 +838,10 @@ public class FunctionalTests {
                 Log.d(TAG, result.getFeatureId());
                 assertEquals(result.getFeatureId(), "RELATED");
                 for (RecommendedItem next : result.getProducts()) {
-                    Assert.assertNotEquals(next.getData().get("category"), "Root Catalog>Handbags");
+                    Assert.assertNotEquals(next.getData().get("category"), "Accessories");
                     Log.d(TAG, next.toString());
                 }
+                signal.countDown();
             }
         });
         t.view("172");
@@ -811,8 +849,114 @@ public class FunctionalTests {
             @Override
             public void onError(@NonNull Error error) {
                 Log.d(TAG, error.toString());
+                e.error = error;
+                signal.countDown();
             }
         });
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertNull(e.error);
+    }
+
+    @Test
+    public void testIncludeItemsWhereOverlaps() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+        final ErrorHolder e = new ErrorHolder();
+        final List<String> filter = Arrays.asList("174", "170");
+        Transaction t = new Transaction();
+        RecommendationRequest r = new RecommendationRequest("RELATED");
+        r.includeItemsWhereOverlaps("item", filter);
+        t.recommend(r, new CompletionHandler() {
+            @Override
+            public void onCompletion(@NonNull RecommendationResult result) {
+                // Process result
+                Log.d(TAG, result.getFeatureId());
+                Assert.assertEquals(result.getFeatureId(), "RELATED");
+                for (RecommendedItem next : result.getProducts()) {
+                    assertTrue(filter.contains(next.getData().get("item")));
+                    Log.d(TAG, next.toString());
+                }
+                signal.countDown();
+            }
+        });
+        t.view("172");
+        Session.getInstance().sendTransaction(t, new ErrorHandler() {
+            @Override
+            public void onError(@NonNull Error error) {
+                Log.d(TAG, error.toString());
+                e.error = error;
+                signal.countDown();
+            }
+        });
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertNull(e.error);
+    }
+
+    @Test
+    public void testExcludeItemsWhereOverlaps() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+        final ErrorHolder e = new ErrorHolder();
+        final List<String> filter = Arrays.asList("174", "170");
+        Transaction t = new Transaction();
+        RecommendationRequest r = new RecommendationRequest("RELATED");
+        r.excludeItemsWhereOverlaps("item", filter);
+        t.recommend(r, new CompletionHandler() {
+            @Override
+            public void onCompletion(@NonNull RecommendationResult result) {
+                // Process result
+                Log.d(TAG, result.getFeatureId());
+                Assert.assertEquals(result.getFeatureId(), "RELATED");
+                for (RecommendedItem next : result.getProducts()) {
+                    assertTrue(!filter.contains(next.getData().get("item")));
+                    Log.d(TAG, next.toString());
+                }
+                signal.countDown();
+            }
+        });
+        t.view("172");
+        Session.getInstance().sendTransaction(t, new ErrorHandler() {
+            @Override
+            public void onError(@NonNull Error error) {
+                Log.d(TAG, error.toString());
+                e.error = error;
+                signal.countDown();
+            }
+        });
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertNull(e.error);
+    }
+
+    @Test
+    public void testBaseline() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+        final ErrorHolder e = new ErrorHolder();
+        final List<String> baseline = Arrays.asList("174", "170");
+        Transaction t = new Transaction();
+        t.cart(Arrays.asList(new CartItem("172", 1f, 2)));
+        RecommendationRequest r = new RecommendationRequest("RELATED");
+        r.setBaseline(baseline);
+        t.recommend(r, new CompletionHandler() {
+            @Override
+            public void onCompletion(@NonNull RecommendationResult result) {
+                // Process result
+                Log.d(TAG, result.getFeatureId());
+                Assert.assertEquals(result.getFeatureId(), "RELATED");
+                for (RecommendedItem next : result.getProducts()) {
+                    Log.d(TAG, next.toString());
+                }
+                signal.countDown();
+            }
+        });
+        t.view("172");
+        Session.getInstance().sendTransaction(t, new ErrorHandler() {
+            @Override
+            public void onError(@NonNull Error error) {
+                Log.d(TAG, error.toString());
+                e.error = error;
+                signal.countDown();
+            }
+        });
+        signal.await(TIMEOUT_SMALL, TimeUnit.SECONDS);
+        assertNull(e.error);
     }
 
     public static Map<String, String> getQueryMap(String urlString) {
