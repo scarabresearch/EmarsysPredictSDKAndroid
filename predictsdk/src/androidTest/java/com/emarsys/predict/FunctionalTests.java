@@ -629,9 +629,22 @@ public class FunctionalTests {
 
     @Test
     public void testEmailHash() throws MalformedURLException {
-        Session.getInstance().setCustomerEmail(" CUSTOMER@TEST-mail.com ");
-        String url = Session.getInstance().generateGET(new Transaction());
-        assertEquals(getParameterValue("eh", url), "19d0b2cccd0b49e81");
+        String[] testCases = new String[] {
+                " CUSTOMER@TEST-mail.com ", "19d0b2cccd0b49e81",
+                "foo@bar.com", "823776525776c8f21",
+                "phở@bar.com", "20d47bc4384dafc01",
+                "a@b3d", "61b9a6da2bd0eabc1",
+                "A@B3D", "61b9a6da2bd0eabc1",
+                "ÁáÓÚ@b", "b3ce6a4a5865da2f1",
+                "a@b3def", "0348f072f6927d871",
+                " שדגשדג\r\n  ", "d0c0ee9c20ff3fe51",
+                "שדגשדג", "d0c0ee9c20ff3fe51"
+        };
+        for (int i = 0; i < testCases.length; i += 2) {
+            Session.getInstance().setCustomerEmail(testCases[i]);
+            String url = Session.getInstance().generateGET(new Transaction());
+            assertEquals(getParameterValue("eh", url), testCases[i + 1]);
+        }
     }
 
     String getParameterValue(String parameterName, String url) {
