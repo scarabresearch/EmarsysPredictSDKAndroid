@@ -38,11 +38,11 @@ configurations {
 }
 
 android {
-    compileSdkVersion 16
+    compileSdkVersion 15
     buildToolsVersion '22.0.1'
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 16
+        minSdkVersion 15
+        targetSdkVersion 15
         versionCode 1
         versionName '1.0'
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'

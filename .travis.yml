@@ -12,13 +12,13 @@ env:
 android:
   components:
     - build-tools-22.0.1
-    - android-16
+    - android-15
     - extra-android-m2repository
-    - sys-img-armeabi-v7a-android-16
-    - sys-img-x86-android-16
+    - sys-img-armeabi-v7a-android-15
+    - sys-img-x86-android-15
 
 before_script:
-  - echo no | android create avd --force -n test -t android-16 --abi armeabi-v7a
+  - echo no | android create avd --force -n test -t android-15 --abi armeabi-v7a
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &

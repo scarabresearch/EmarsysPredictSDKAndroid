@@ -8,7 +8,7 @@ This document describes the Emarsys Predict SDK for the Android platform. It is 
 
 ## Install
 
-Minimum supported version is ***minSdkVersion 16***
+Minimum supported version is ***minSdkVersion 15***
 
 - You will need a valid product catalog, described here: http://documentation.emarsys.com/resource/b2c-cloud/web-extend/implementing-web-extend/#2
 - Add the SDK to your build.gradle
