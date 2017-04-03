@@ -25,6 +25,8 @@ import com.squareup.okhttp.Response;
 
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -54,10 +56,13 @@ public class Session {
 
     private final CookieManager cookieManager;
 
+    private final Handler handler;
+
     private Session() {
         cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(cookieManager);
+        handler = new Handler(Looper.getMainLooper());
     }
 
     private static Storage storage;
@@ -153,8 +158,15 @@ public class Session {
 
         Log.d(TAG, url);
 
-        TransactionTask task = new TransactionTask(transaction, errorHandler, completionHandler);
-        task.execute();
+        // for API levels lower than 16, AsyncTasks can only be created on the UI thread
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                TransactionTask task = new TransactionTask(transaction, errorHandler,
+                        completionHandler);
+                task.execute(url);
+            }
+        });
     }
 
     private String merchantId;
