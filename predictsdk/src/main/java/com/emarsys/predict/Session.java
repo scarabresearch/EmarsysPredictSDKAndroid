@@ -23,7 +23,6 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -40,6 +39,7 @@ import java.net.HttpCookie;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionService;
 
 /**
  * The global session object.
@@ -153,76 +153,8 @@ public class Session {
 
         Log.d(TAG, url);
 
-        AsyncTask<String, Void, Object> task = new AsyncTask<String, Void, Object>() {
-
-            @Override
-            protected Object doInBackground(String... args) {
-                // Invoked on the background thread
-                Response response = null;
-                try {
-                    URL url = new URL(args[0]);
-                    OkHttpClient client = new OkHttpClient();
-                    client.setCookieHandler(cookieManager);
-                    Request request = new Request.Builder()
-                            .url(url)
-                            .header("User-Agent", "EmarsysPredictSDK|osversion:"
-                                    + Build.VERSION.RELEASE + "|platform:android")
-                            .build();
-                    response = client.newCall(request).execute();
-                    int statusCode = response.code();
-                    if (statusCode >= 300) {
-                        return new Error("Unexpected http status code " + statusCode,
-                                Error.ERROR_BAD_HTTP_STATUS, null);
-                    }
-                    // Find cdv
-                    handleCookies(cookieManager.getCookieStore().getCookies());
-                    // Get json content
-                    Gson gson = new Gson();
-                    Reader r = new InputStreamReader(response.body().byteStream());
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> json = (Map<String, Object>) gson.fromJson(r, Map.class);
-                    ResponseParser parser = new ResponseParser(json);
-                    return parser;
-                } catch (Exception e) {
-                    if (e instanceof Error) {
-                        return e;
-                    }
-                    return new Error("An unknown error has occurred", Error.ERROR_UNKNOWN, e);
-                } finally {
-                    if (response != null) {
-                        try {
-                            response.body().close();
-                        } catch (IOException e) {
-                            Log.w(TAG, "Unable to close response body");
-                        }
-                    }
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
-                // Invoked on the UI thread after the background computation finishes
-                if (o instanceof Error) {
-                    // Forward error
-                    if (errorHandler != null) {
-                        errorHandler.onError((Error) o);
-                    }
-                } else {
-                    // Store session and visitor
-                    ResponseParser parser = (ResponseParser) o;
-                    session = parser.getSession();
-                    visitor = parser.getVisitor();
-                    // Forward results
-                    transaction.handleResults(parser.getResults());
-                    // Completed
-                    if (completionHandler != null) {
-                        completionHandler.onCompletion(null);
-                    }
-                }
-            }
-
-        };
-        task.execute(url);
+        TransactionTask task = new TransactionTask(transaction, errorHandler, completionHandler);
+        task.execute();
     }
 
     private String merchantId;
@@ -364,4 +296,83 @@ public class Session {
         return builder.build().url().toString();
     }
 
+    private class TransactionTask extends AsyncTask<String, Void, Object> {
+
+        private final Transaction transaction;
+        private final ErrorHandler errorHandler;
+        private final CompletionHandler completionHandler;
+
+        public TransactionTask(Transaction transaction, ErrorHandler errorHandler,
+                               CompletionHandler completionHandler) {
+            this.transaction = transaction;
+            this.errorHandler = errorHandler;
+            this.completionHandler = completionHandler;
+        }
+
+        @Override
+        protected Object doInBackground(String... args) {
+            // Invoked on the background thread
+            Response response = null;
+            try {
+                URL url = new URL(args[0]);
+                OkHttpClient client = new OkHttpClient();
+                client.setCookieHandler(cookieManager);
+                Request request = new Request.Builder()
+                        .url(url)
+                        .header("User-Agent", "EmarsysPredictSDK|osversion:"
+                                + Build.VERSION.RELEASE + "|platform:android")
+                        .build();
+                response = client.newCall(request).execute();
+                int statusCode = response.code();
+                if (statusCode >= 300) {
+                    return new Error("Unexpected http status code " + statusCode,
+                            Error.ERROR_BAD_HTTP_STATUS, null);
+                }
+                // Find cdv
+                handleCookies(cookieManager.getCookieStore().getCookies());
+                // Get json content
+                Gson gson = new Gson();
+                Reader r = new InputStreamReader(response.body().byteStream());
+                @SuppressWarnings("unchecked")
+                Map<String, Object> json = (Map<String, Object>) gson.fromJson(r, Map.class);
+                ResponseParser parser = new ResponseParser(json);
+                return parser;
+            } catch (Exception e) {
+                if (e instanceof Error) {
+                    return e;
+                }
+                return new Error("An unknown error has occurred", Error.ERROR_UNKNOWN, e);
+            } finally {
+                if (response != null) {
+                    try {
+                        response.body().close();
+                    } catch (IOException e) {
+                        Log.w(TAG, "Unable to close response body");
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            // Invoked on the UI thread after the background computation finishes
+            if (o instanceof Error) {
+                // Forward error
+                if (errorHandler != null) {
+                    errorHandler.onError((Error) o);
+                }
+            } else {
+                // Store session and visitor
+                ResponseParser parser = (ResponseParser) o;
+                session = parser.getSession();
+                visitor = parser.getVisitor();
+                // Forward results
+                transaction.handleResults(parser.getResults());
+                // Completed
+                if (completionHandler != null) {
+                    completionHandler.onCompletion(null);
+                }
+            }
+        }
+    }
 }
