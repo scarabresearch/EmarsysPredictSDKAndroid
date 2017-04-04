@@ -18,6 +18,7 @@ android:
     - sys-img-x86-android-15
 
 before_script:
+  - android list sdk --all
   - echo no | android create avd --force -n test -t android-15 --abi armeabi-v7a
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
