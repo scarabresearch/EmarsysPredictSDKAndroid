@@ -26,11 +26,10 @@ before_script:
   - adb shell input keyevent 82 &
   - date
   - adb shell date
-  - adb shell date --help
-  - adb shell date 20170404.204242
-  - adb shell date -s 20170404.204242
   - adb shell date 040420422017.42
-  - adb shell date -s 040420422017.42
+  - adb shell su -c date 040420422017.42
+  - adb shell 'su -c date 040420422017.42'
+  - adb shell "su -c 'date 040420422017.42'"
   - adb shell date
   - date
   - ./gradlew connectedAndroidTest -i coveralls
