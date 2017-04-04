@@ -11,7 +11,9 @@ env:
 
 android:
   components:
-    - build-tools-23.0.1
+    - tools
+    - tools # force update to newest Android repo
+    - build-tools-25.0.2
     - android-15
     - extra-android-m2repository
     - sys-img-armeabi-v7a-android-15
@@ -19,7 +21,7 @@ android:
 
 before_script:
   - echo no | android create avd --force -n test -t android-15 --abi armeabi-v7a
-  - emulator -avd test -no-skin -no-audio -no-window &
+  - emulator -avd test -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
   - ./gradlew connectedAndroidTest -i coveralls
