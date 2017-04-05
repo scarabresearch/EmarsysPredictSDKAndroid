@@ -39,7 +39,7 @@ configurations {
 
 android {
     compileSdkVersion 15
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '22.0.1'
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 15
