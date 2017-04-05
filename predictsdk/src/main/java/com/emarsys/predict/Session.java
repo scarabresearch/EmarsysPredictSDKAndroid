@@ -353,7 +353,8 @@ public class Session {
                 if (e instanceof Error) {
                     return e;
                 }
-                return new Error("An unknown error has occurred", Error.ERROR_UNKNOWN, e);
+                e.printStackTrace();
+                return new Error("An unknown error has occurred: " + e.getMessage(), Error.ERROR_UNKNOWN, e);
             } finally {
                 if (response != null) {
                     try {
