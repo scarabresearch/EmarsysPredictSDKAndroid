@@ -36,7 +36,7 @@ The semantics of each SDK function is documented in our JavaScript API. There ar
 
 - ***Rendering recommendations:*** We recommend to use a ListView or a RecyclerView for displaying the recommendations, and append/make the results from the recommendation to the data source, then reload the data to it.
 
-You may filter down the live events on [console](https://console.scarabresearch.com/#/liveevents) for events only coming from Android devices for developing/debugging purposes.
+You may use Live Events (Emarsys > Admin > Data Sources) to filter for events coming from Android devices for development/debugging purposes.
 
 The ***Javascript API documentation*** lives here:
 
